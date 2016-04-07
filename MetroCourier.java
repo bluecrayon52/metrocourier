@@ -4,6 +4,7 @@ import java.util.Stack;
 import java.io.*;
 import java.util.Scanner;
 
+
 public class MetroCourier {
 
     private static Stack<Waybill> stack = new Stack<>(); // should this be global? 
@@ -12,7 +13,8 @@ public class MetroCourier {
         //main method presents menu to the user
         Scanner scan = new Scanner(System.in); //used to read input from the console
         String input = "0"; //default value
-
+        loadSavedStack(); 
+        
         //add logic to load saved waybills from saved_waybills file
         //continue to present the menu until the user enters 4
         while (!input.equals("4")) {
@@ -132,11 +134,49 @@ public class MetroCourier {
 
     private static void save() {
         
-        //method will save any waybills in memory to saved_waybills, then exit
+      try{
+          
+        FileOutputStream fos = new FileOutputStream("saved_waybills.obj"); // obj file? 
+        
+        ObjectOutputStream oos = new ObjectOutputStream(fos); // IOException 
+			oos.writeObject(stack);  // InvalidClassException
+			oos.close(); // IOException 
+                       
         System.out.println("Saved. Goodbye!");
+        
+         
+        
+      } catch(FileNotFoundException e){
+            System.out.println(e.getMessage());
+        }
+        catch(InvalidClassException e){
+            System.out.println(e.getMessage());
+        }
+        catch(IOException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     private static int stringToInt(String s) {
         return Integer.parseInt(s);
+    }
+    
+    private static void loadSavedStack(){
+     // if file doesn't exist, make it, 
+     // if the file is empty, do nothing 
+     // else do the following 
+     try{
+       FileInputStream fis = new FileInputStream("saved_waybills.obj");
+       
+       ObjectInputStream ois = new ObjectInputStream(fis);
+			stack  = (Stack) ois.readObject();
+			ois.close(); 
+                        
+     }catch(FileNotFoundException e){
+         System.out.println(e.getMessage());
+      }
+      catch(IOException | ClassNotFoundException e){
+         System.out.println(e.getMessage());
+      }
     }
 }
