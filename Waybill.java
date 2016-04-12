@@ -30,8 +30,8 @@ public class Waybill{
    
     @Override
     public String toString(){
-       return "Waybill: <"+waybillNumber+">\n"
-             +"Sender: <"+fromAddress+">\n"
-             +"Destination: <"+toAddress+">\n"; 
+       return "Waybill:"+waybillNumber+"\n"
+             +fromAddress+"\n"
+             +toAddress+"\n"; 
     }
 }

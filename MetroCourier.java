@@ -2,20 +2,24 @@ package metrocourier;
 
 import java.util.Stack;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 
 public class MetroCourier {
 
-    private static Stack<Waybill> stack = new Stack<>(); // should this be global? 
+    private static Stack<Waybill> stack = new Stack<>(); 
 
     public static void main(String[] args) {
         //main method presents menu to the user
         Scanner scan = new Scanner(System.in); //used to read input from the console
         String input = "0"; //default value
-        loadSavedStack(); 
         
         //add logic to load saved waybills from saved_waybills file
+        loadSavedStack();
+        
         //continue to present the menu until the user enters 4
         while (!input.equals("4")) {
             //print the menu
@@ -69,34 +73,41 @@ public class MetroCourier {
         File[] wb_Array = directory.listFiles();
         int count = 0;
 
-        for (File new_wb : wb_Array) {
-
+        for (int i = 0; i < wb_Array.length; i++) {
+            
+            File new_wb = wb_Array[i]; 
+            
             try (Scanner readFile = new Scanner(new_wb)) {
 
                 while (readFile.hasNext()) {
 
                     Waybill wayBill = new Waybill(
-                            stringToInt(readFile.nextLine().substring(9)),
-                            readFile.nextLine().substring(8),
-                            readFile.nextLine().substring(13));
+                            stringToInt(readFile.nextLine().substring(8)),
+                            readFile.nextLine(),
+                            readFile.nextLine());
 
                     stack.push(wayBill);
-
+                    
+                    // delete the waybill file 
+                    new_wb.delete();  
                 }
 
                 readFile.close();
                 count++;
+                
 
             } catch (FileNotFoundException e) {
             }
         }
 
-        //add logic here
         System.out.println("done!");
-        System.out.println(count + " waybills read, " + count + " total waybills ready.");
-        System.out.print("Press any key to continue>");
-        //add logic here
-    }
+        System.out.println(count + " waybills read, " + stack.size()+ " total waybills ready.");
+        System.out.print("Press any key + enter to continue>");
+        
+        Continue(); 
+        
+        }
+    
 
     private static void dispatch() {
         //method will dispatch the newest waybill
@@ -104,10 +115,12 @@ public class MetroCourier {
 
         Waybill dispatchFile = stack.pop();
 
-        System.out.println("Waybill #: <" + dispatchFile.getNumber() + ">");
-        System.out.println("Waybill Address: <" + dispatchFile.getDestination() + ">");
-        System.out.print("Press any key to continue>");
-        //add logic here
+        System.out.println("Waybill #:" + dispatchFile.getNumber());
+        System.out.println(dispatchFile.getDestination());
+        System.out.print("Press any key + enter to continue>");
+        
+        Continue(); 
+        
     }
 
     private static void endOfDay() {
@@ -128,15 +141,22 @@ public class MetroCourier {
         //method will queue the waybills to the output directory
         System.out.println("Y outstanding waybills have been queued and sent.");
         //add logic here 
-        System.out.print("Press any key to continue>");
-        //add logic here
+        System.out.print("Press any key + enter to continue>");
+        
+        Continue(); 
     }
 
     private static void save() {
         
+       // check to see if there is anything to save 
+        if(stack.empty()){
+            System.out.println("There are no waybills to save, Goodbye!");
+            return; 
+        }
+        
       try{
           
-        FileOutputStream fos = new FileOutputStream("saved_waybills.obj"); // obj file? 
+        FileOutputStream fos = new FileOutputStream("saved_waybills.obj"); // or .sir
         
         ObjectOutputStream oos = new ObjectOutputStream(fos); // IOException 
 			oos.writeObject(stack);  // InvalidClassException
@@ -162,15 +182,17 @@ public class MetroCourier {
     }
     
     private static void loadSavedStack(){
-     // if file doesn't exist, make it, 
-     // if the file is empty, do nothing 
-     // else do the following 
+        
+     // if "saved_waybill.obj" exists
      try{
-       FileInputStream fis = new FileInputStream("saved_waybills.obj");
+       FileInputStream fis = new FileInputStream("saved_waybills.obj"); // or .sir
        
+               // if(fis.available()!=0){}     
+           
        ObjectInputStream ois = new ObjectInputStream(fis);
 			stack  = (Stack) ois.readObject();
 			ois.close(); 
+                        // delete saved_waybills.obj
                         
      }catch(FileNotFoundException e){
          System.out.println(e.getMessage());
@@ -178,5 +200,11 @@ public class MetroCourier {
       catch(IOException | ClassNotFoundException e){
          System.out.println(e.getMessage());
       }
+     
     }
+    
+    private static void Continue(){
+    Scanner cont = new Scanner(System.in); 
+    cont.nextLine(); 
+}
 }
