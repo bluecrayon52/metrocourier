@@ -70,9 +70,9 @@ public class MetroCourier {
         System.out.print("Reading waybills...");
 
         File directory = new File("new_waybills"); // find the directory? 
-        File[] wb_Array = directory.listFiles();
+        File[] wb_Array = directory.listFiles();  
         int count = 0;
-
+        
         for (int i = 0; i < wb_Array.length; i++) {
             
             File new_wb = wb_Array[i]; 
@@ -82,7 +82,7 @@ public class MetroCourier {
                 while (readFile.hasNext()) {
 
                     Waybill wayBill = new Waybill(
-                            stringToInt(readFile.nextLine().substring(8)),
+                            stringToInt(readFile.nextLine().substring(8).trim()),
                             readFile.nextLine(),
                             readFile.nextLine());
 
@@ -90,13 +90,16 @@ public class MetroCourier {
                     
                     // delete the waybill file 
                     new_wb.delete();  
+                    
+                    count++;
                 }
 
                 readFile.close();
-                count++;
+                
                 
 
             } catch (FileNotFoundException e) {
+                System.out.println(e.getMessage());
             }
         }
 
@@ -110,6 +113,7 @@ public class MetroCourier {
     
 
     private static void dispatch() {
+        if(!stack.empty()){
         //method will dispatch the newest waybill
         System.out.println("Dispatching 1 waybill...");
 
@@ -117,6 +121,12 @@ public class MetroCourier {
 
         System.out.println("Waybill #:" + dispatchFile.getNumber());
         System.out.println(dispatchFile.getDestination());
+        }
+        
+        else{
+            System.out.println("No waybills to dispatch.");
+        }
+        
         System.out.print("Press any key + enter to continue>");
         
         Continue(); 
@@ -124,22 +134,27 @@ public class MetroCourier {
     }
 
     private static void endOfDay() {
-
+        
+        int count = 0;  
+        
         try (PrintWriter outputFile = new PrintWriter("waybill_queue.txt")) {
-
+            
+            
             while (!stack.empty()) {
                 Waybill dispatchFile = stack.pop();
 
                 outputFile.println(dispatchFile.toString());
                 outputFile.println();
+                
+                count++;  
             }
 
         } catch (FileNotFoundException e) {
-
+             System.out.println(e.getMessage());
         }
 
         //method will queue the waybills to the output directory
-        System.out.println("Y outstanding waybills have been queued and sent.");
+        System.out.println(count+" outstanding waybills have been queued and sent.");
         //add logic here 
         System.out.print("Press any key + enter to continue>");
         
@@ -149,10 +164,10 @@ public class MetroCourier {
     private static void save() {
         
        // check to see if there is anything to save 
-        if(stack.empty()){
-            System.out.println("There are no waybills to save, Goodbye!");
-            return; 
-        }
+       // if(stack.empty()){
+          //  System.out.println("There are no waybills to save, Goodbye!");
+          //  return; 
+       // }
         
       try{
           
@@ -182,21 +197,19 @@ public class MetroCourier {
     }
     
     private static void loadSavedStack(){
-        
-     // if "saved_waybill.obj" exists
+     
      try{
        FileInputStream fis = new FileInputStream("saved_waybills.obj"); // or .sir
        
-               // if(fis.available()!=0){}     
            
        ObjectInputStream ois = new ObjectInputStream(fis);
 			stack  = (Stack) ois.readObject();
 			ois.close(); 
-                        // delete saved_waybills.obj
                         
      }catch(FileNotFoundException e){
-         System.out.println(e.getMessage());
+        // do nothing if there is no saved stack  
       }
+     
       catch(IOException | ClassNotFoundException e){
          System.out.println(e.getMessage());
       }

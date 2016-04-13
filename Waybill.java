@@ -1,7 +1,9 @@
 package metrocourier; 
  
+import java.io.Serializable;
 
-public class Waybill{ 
+
+public class Waybill implements Serializable{ 
     private int waybillNumber; 
     private String toAddress; 
     private String fromAddress; 
