@@ -71,7 +71,7 @@ public class MetroCourier {
         // if "new_waybills" doesn't exist...
         if (!Files.isReadable(Paths.get("new_waybills"))) {
             System.out.println("The waybill directory cannot be found");
-            System.out.print("Press any key + enter to continue>");
+            System.out.print("Press enter to continue>");
 
             Continue();
             return;
@@ -79,30 +79,57 @@ public class MetroCourier {
 
         // begin insanciating waybills from txt doc Strings and push to stack
         System.out.print("Reading waybills...");
-
+        
+        // only checks in local directory 
         File directory = new File("new_waybills");
+        
+        // an array of file paths 
         File[] wb_Array = directory.listFiles();
-        int count = 0;
+       
+        int count = 0; // number of waybills read 
 
         for (int i = 0; i < wb_Array.length; i++) {
-
+            
             File new_wb = wb_Array[i];
-
+            
+            // instanciate a waybill obj 
+            Waybill wayBill = new Waybill(); 
+            int lineCount = 0; // number of properly read lines from txt
+            
             try (Scanner readFile = new Scanner(new_wb)) {
-
-                while (readFile.hasNext()) {
-
-                    Waybill wayBill = new Waybill(
-                            stringToInt(readFile.nextLine().substring(8).trim()),
-                            readFile.nextLine(),
-                            readFile.nextLine());
-
-                    stack.push(wayBill);
-
-                    // delete the waybill file 
-                    new_wb.delete();
-                    // increment count 
-                    count++;
+       
+             // only accept properly formatted txt files 
+             // with non empty data fields 
+                
+             if(readFile.hasNext()){
+                String number = readFile.nextLine().trim();
+                   
+                if(number.length()>= 9){
+                    wayBill.setNumber(stringToInt(number.substring(8)));
+                    lineCount++;
+                    }
+             }
+             if(readFile.hasNext()){   
+                String dest = readFile.nextLine().trim(); 
+                
+                if(dest.length() >= 8){
+                    wayBill.setDestination(dest);
+                    lineCount++;
+                    }
+             }
+             if(readFile.hasNext()){
+                String sender = readFile.nextLine().trim(); 
+                
+                if(sender.length()>= 13){
+                    wayBill.setSender(sender);
+                    lineCount++; 
+                    }
+             }  
+                // if all three waybill variables are set 
+                if(lineCount == 3){
+                    stack.push(wayBill); 
+                    new_wb.delete(); 
+                    count++; 
                 }
 
                 readFile.close();
@@ -113,8 +140,19 @@ public class MetroCourier {
         }
 
         System.out.println("done!");
+        
+        if(count < wb_Array.length){
+            // calculates number of txt files not read and not deleted 
+            int junkFileCount = wb_Array.length - count; 
+            
+            // alternative print statement 
+            System.out.println(junkFileCount+" waybill(s) have missing data/n"
+                    + "or were not properly formatted.\n"
+            +"They have been left in the waybill folder for review and editing.");  
+        }
+        
         System.out.println(count + " waybills read, " + stack.size() + " total waybills ready.");
-        System.out.print("Press any key + enter to continue>");
+        System.out.print("Press enter to continue>");
 
         Continue();
 
@@ -138,7 +176,7 @@ public class MetroCourier {
             System.out.println("No waybills to dispatch.");
         }
 
-        System.out.print("Press any key + enter to continue>");
+        System.out.print("Press enter to continue>");
 
         Continue();
 
@@ -174,7 +212,7 @@ public class MetroCourier {
             System.out.println(count + " outstanding waybills have been queued and sent.");
         }
 
-        System.out.print("Press any key + enter to continue>");
+        System.out.print("Press enter to continue>");
 
         Continue();
     }
