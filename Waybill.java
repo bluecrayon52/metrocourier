@@ -2,6 +2,12 @@ package metrocourier;
 
 import java.io.Serializable;
 
+/*  
+ * Author: Nathaniel Clay Arnold
+ * Program 5 - Waybill
+ * CSC230-02 Spring 2016
+ */
+
 public class Waybill implements Serializable { 
 
     private int waybillNumber;

@@ -6,6 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+/*  
+ * Author: Nathaniel Clay Arnold
+ * Program 5 - MetroCourier 
+ * CSC230-02 Spring 2016
+ */
+
 public class MetroCourier {
 
     private static Stack<Waybill> stack = new Stack<>();
